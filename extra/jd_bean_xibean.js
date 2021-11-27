@@ -72,7 +72,7 @@ if ($.isNode()) {
 function showMsg() {
   allMessage+=`📣=============账号${$.index}=============📣\n`
   allMessage+=`账号名称：${$.nickName || $.UserName}\n`;
-  allMessage+= $.expireBean ? `今日即将过期${$.expireBean}京豆，已自动兑换喜豆\n` : `今日暂无过期京豆，无需兑换喜豆\n`;
+  allMessage+= $.expireBean ? `今日即将过期${$.expireBean}京豆，已自动兑换喜豆\n` : `今日暂无京豆过期，无需兑换喜豆\n`;
   allMessage+=`当前喜豆：${$.xibeanCount}\n`;
 }
 function TotalBean() {
@@ -131,7 +131,7 @@ function queryexpirejingdou() {
         "Cookie": cookie,
         "Host": "wq.jd.com",
         "Referer": "https://wqs.jd.com/promote/201801/bean/mybean.html",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Mobile/15E148 Safari/604.1"
+        "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
       }
     }
     $.get(options, (err, resp, data) => {
@@ -169,16 +169,16 @@ function exchangeExpireBean() {
     }
 
     const options = {
-      "url": `https://m.jingxi.com/deal/masset/jd2xd?use=${$.expireBean}&pingouchannel=1&canpintuan=1&setdefcoupon=0&bizkey=pingou&bizval=15107632540519229262&r=0.3185375978222009&callback=jd2xdCbA&traceid=1328854820131532966&sceneval=2`,
+      "url": `https://m.jingxi.com/deal/masset/jd2xd?use=${o}&canpintuan=&setdefcoupon=0&r=${Math.random()}&sceneval=2`,
       "headers": {
-        "Accept": "*/*",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "zh-cn",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "Host": "m.jingxi.com",
-        "Referer": "https://m.jingxi.com/deal/confirmorder/main?commlist=10037253770943%2C%2C1%2C10037253770943%2C1%2C0%2C0&activeid=16318670288912&bizval=15107632540519229262&member=2&bizkey=pingou&jxsid=16378989533164304292",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Mobile/15E148 Safari/604.1"
+          "Host": "m.jingxi.com",
+          "Accept": "*/*",
+          "Cookie": cookie,
+          "Connection": "keep-alive",
+          "User-Agent": 'jdpingou;iPhone;4.13.0;14.4.2;${UUID};network/wifi;model/iPhone10,2;appBuild/100609;ADID/00000000-0000-0000-0000-000000000000;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/1;hasOCPay/0;supportBestPay/0;session/${Math.random * 98 + 1};pap/JA2019_3111789;brand/apple;supportJDSHWK/1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+          "Accept-Language": "zh-cn",
+          "Referer": "https://m.jingxi.com/deal/confirmorder/main",
+          "Accept-Encoding": "gzip, deflate, br",
       }
     }
     $.get(options, (err, resp, data) => {
@@ -189,11 +189,10 @@ function exchangeExpireBean() {
         } else {
           if (data) {
             // console.log(data)
-            data = getJsonpData('jd2xdCbA', data);
-            // console.log(data)
             if (data.errId === '0') {
               console.log(`${$.expireBean}京豆兑换喜豆成功`);
             } else {
+              console.log(`${$.expireBean}京豆兑换喜豆失败：${data.errMsg}`);
             }
           } else {
             console.log(`京东服务器返回空数据`)
@@ -220,7 +219,7 @@ function getXidouCount() {
         "Cookie": cookie,
         "Host": "m.jingxi.com",
         "Referer": "https://st.jingxi.com/",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Mobile/15E148 Safari/604.1"
+        "User-Agent": 'jdpingou;iPhone;4.13.0;14.4.2;${UUID};network/wifi;model/iPhone10,2;appBuild/100609;ADID/00000000-0000-0000-0000-000000000000;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/1;hasOCPay/0;supportBestPay/0;session/${Math.random * 98 + 1};pap/JA2019_3111789;brand/apple;supportJDSHWK/1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
       }
     }
     $.get(options, (err, resp, data) => {
@@ -251,13 +250,16 @@ function getXidouCount() {
 }
 
 function getJsonpData(key, jsonpRes) {
-  let keyFucStr = `function ${key}(data){return data;}`;
+  const keyFucStr = `var ${key} = function (data){return data;}`;
+  const keyFuncNull = `${key} = null;`;
   let result = '';
   eval(keyFucStr);
 
   if (typeof jsonpRes === 'string') {
     result = eval(jsonpRes);
   }
+
+  eval(keyFuncNull);
 
   return result;
 }
