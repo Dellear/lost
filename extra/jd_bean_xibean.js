@@ -72,7 +72,7 @@ if ($.isNode()) {
 function showMsg() {
   allMessage+=`📣=============账号${$.index}=============📣\n`
   allMessage+=`账号名称：${$.nickName || $.UserName}\n`;
-  allMessage+=`七天将过期${$.expireBean}京豆，已自动兑换为喜豆\n`;
+  allMessage+= $.expireBean ? `今日即将过期${$.expireBean}京豆，已自动兑换喜豆\n` : `今日暂无过期京豆，无需兑换喜豆\n`;
   allMessage+=`当前喜豆：${$.xibeanCount}\n`;
 }
 function TotalBean() {
@@ -144,11 +144,9 @@ function queryexpirejingdou() {
             // console.log(data)
             data = getJsonpData('QueryExpireJingdou', data);
             // console.log(data)
-            if (data.ret === 0) {
-              data.expirejingdou.map(item => {
-                console.log(`${timeFormat(item['time'] * 1000)}日过期京豆：${item['expireamount']}\n`);
-                $.expireBean += item['expireamount'];
-              })
+            if (data.ret === 0 && data.expirejingdou.length) {
+              console.log(`今日即将过期京豆：${data.expirejingdou[0]['expireamount']}\n`);
+              $.expireBean = data.expirejingdou[0]['expireamount'];
             }
           } else {
             console.log(`京东服务器返回空数据`)
