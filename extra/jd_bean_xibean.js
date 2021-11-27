@@ -1,6 +1,6 @@
 /*
 过期京豆自动兑换喜豆
-created time: 2021-11-26
+update time: 2021-11-27
 
 cron 10 7 * * * task jd_bean_xibean.js
  */
