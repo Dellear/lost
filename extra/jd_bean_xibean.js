@@ -169,7 +169,7 @@ function exchangeExpireBean() {
     }
 
     const options = {
-      "url": `https://m.jingxi.com/deal/masset/jd2xd?use=${o}&canpintuan=&setdefcoupon=0&r=${Math.random()}&sceneval=2`,
+      "url": `https://m.jingxi.com/deal/masset/jd2xd?use=${$.expireBean}&canpintuan=&setdefcoupon=0&r=${Math.random()}&sceneval=2`,
       "headers": {
           "Host": "m.jingxi.com",
           "Accept": "*/*",
