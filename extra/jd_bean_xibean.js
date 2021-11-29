@@ -169,7 +169,7 @@ function exchangeExpireBean() {
     }
 
     const options = {
-      "url": `https://m.jingxi.com/deal/masset/jd2xd?use=${$.expireBean}&canpintuan=&setdefcoupon=0&r=${Math.random()}&sceneval=2`,
+      "url": `https://m.jingxi.com/deal/masset/jd2xd?use=${$.expireBean}&canpintuan=&setdefcoupon=0&r=${Math.random()}&callback=jd2xdCbA&sceneval=2`,
       "headers": {
           "Host": "m.jingxi.com",
           "Accept": "*/*",
@@ -189,6 +189,7 @@ function exchangeExpireBean() {
         } else {
           if (data) {
             // console.log(data)
+            data = getJsonpData('jd2xdCbA', data);
             if (data.errId === '0') {
               console.log(`${$.expireBean}京豆兑换喜豆成功`);
             } else {
