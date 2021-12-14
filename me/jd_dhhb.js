@@ -19,7 +19,7 @@ let allMessage = '',
 let msg = [];
 
 const ddwPaperMoney = $.isNode() ? (process.env.DDWPAPERMONEY ? process.env.DDWPAPERMONEY : '100000') : '188000';
-const dwLvl =$.isNode() ? (process.env.DWLVL ? process.env.DWLVL : '1') : '12';
+const dwLvl =$.isNode() ? (process.env.DWLVL ? process.env.DWLVL : '11') : '12';
 console.log(`当前抢兑：${ddwPaperMoney / 1000} 红包`)
 
 if ($.isNode()) {
