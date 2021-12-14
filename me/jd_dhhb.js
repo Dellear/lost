@@ -19,7 +19,7 @@ let allMessage = '',
 let msg = [];
 
 const ddwPaperMoney = $.isNode() ? (process.env.DDWPAPERMONEY ? process.env.DDWPAPERMONEY : '100000') : '188000';
-const dwLvl =$.isNode() ? (process.env.DWLVL ? process.env.DWLVL : '3') : '12';
+const dwLvl =$.isNode() ? (process.env.DWLVL ? process.env.DWLVL : '1') : '12';
 console.log(`当前抢兑：${ddwPaperMoney / 1000} 红包`)
 
 if ($.isNode()) {
@@ -131,7 +131,7 @@ function ExchangeList() {
         $.get(
             taskUrl(
                 `user/ExchangeState`,
-                `dwType=2&strPoolName=jxcfd2_exchange_hb_202111&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
+                `dwType=2&strPoolName=jxcfd2_exchange_hb_202112&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
             ),
             async (err, resp, data) => {
                 try {
@@ -166,7 +166,7 @@ function cashOut() {
         $.get(
             taskUrl(
                 `user/ExchangePrize`,
-                `dwType=3&ddwPaperMoney=${ddwPaperMoney}&strPoolName=jxcfd2_exchange_hb_202111&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
+                `dwType=3&ddwPaperMoney=${ddwPaperMoney}&strPoolName=jxcfd2_exchange_hb_202112&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
             ),
             async (err, resp, data) => {
                 try {
