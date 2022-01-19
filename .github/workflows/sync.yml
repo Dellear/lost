@@ -27,5 +27,6 @@ jobs:
           dst: gitee/dellear
           dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
           dst_token:  ${{ secrets.GITEE_TOKEN }}
-          static_list: "sync=>lost"
+          static_list: "sync"
+          mappings: "sync=>lost"
           force_update: true
