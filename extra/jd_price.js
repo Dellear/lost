@@ -6,17 +6,17 @@
 ============Quantumultx===============
 [task_local]
 #京东保价
-41 23 * * * https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js, tag=京东保价, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+41 21 * * * https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js, tag=京东保价, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "41 23 * * *" script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js,tag=京东保价
+cron "41 21 * * *" script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js,tag=京东保价
 
 ===============Surge=================
-京东保价 = type=cron,cronexp="41 23 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js
+京东保价 = type=cron,cronexp="41 21 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js
 
 ============小火箭=========
-京东保价 = type=cron,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js, cronexpr="41 23 * * *", timeout=3600, enable=true
+京东保价 = type=cron,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_price.js, cronexpr="41 21 * * *", timeout=3600, enable=true
  */
 const $ = new Env('京东保价');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -47,8 +47,9 @@ const JD_API_HOST = 'https://api.m.jd.com/';
       $.index = i + 1;
       $.isLogin = true;
       $.nickName = '';
-      $.token = ''
+      $.token = '';
       message = '';
+      $.tryCount = 0;
       await TotalBean();
       console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
       if (!$.isLogin) {
@@ -97,14 +98,16 @@ async function siteppM_skuOnceApply() {
     token: $.token,
     feSt: $.token ? "s" : "f"
   }
+  const time = Date.now();
   const h5st = await $.signWaap("d2f64", {
     appid: "siteppM",
     functionId: "siteppM_skuOnceApply",
-    t: new Date().getTime(),
+    t: time,
     body: body
 });
+console.log(h5st);
   return new Promise(async resolve => {
-    $.post(taskUrl("siteppM_skuOnceApply", body, h5st), async (err, resp, data) => {
+    $.post(taskUrl("siteppM_skuOnceApply", body, h5st, time), async (err, resp, data) => {
       try {
         if (err) {
           console.log(JSON.stringify(err))
@@ -113,11 +116,19 @@ async function siteppM_skuOnceApply() {
           if (safeGet(data)) {
             data = JSON.parse(data)
             if (data.flag) {
-              await $.wait(25 * 1000)
-              await siteppM_appliedSuccAmount()
+              await $.wait(25 * 1000);
+              await siteppM_appliedSuccAmount();
             } else {
-              console.log(`保价失败：${data.responseMessage}`)
-              message += `保价失败：${data.responseMessage}\n`
+              console.log(`保价失败：${data.responseMessage}`);
+              // 重试3次
+              if ($.tryCount < 4) {
+                await $.wait(2 * 1000);
+                siteppM_skuOnceApply();
+                $.tryCount++;
+              } else {
+                message += `保价失败：${data.responseMessage}\n`;
+              }
+
             }
           }
         }
@@ -230,9 +241,10 @@ function showMsg() {
   })
 }
 
-function taskUrl(functionId, body, h5st = '') {
+function taskUrl(functionId, body, h5st = '', time = Date.now()) {
+  console.log(JSON.stringify(body));
   return {
-    url: `${JD_API_HOST}api?appid=siteppM&functionId=${functionId}&forcebot=&t=${Date.now()}`,
+    url: `${JD_API_HOST}api?appid=siteppM&functionId=${functionId}&forcebot=&t=${time}`,
     body: `body=${encodeURIComponent(JSON.stringify(body))}&h5st=${encodeURIComponent(h5st)}`,
     headers: {
       "Host": "api.m.jd.com",
