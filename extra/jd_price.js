@@ -105,7 +105,6 @@ async function siteppM_skuOnceApply() {
     t: time,
     body: body
 });
-console.log(h5st);
   return new Promise(async resolve => {
     $.post(taskUrl("siteppM_skuOnceApply", body, h5st, time), async (err, resp, data) => {
       try {
@@ -242,7 +241,6 @@ function showMsg() {
 }
 
 function taskUrl(functionId, body, h5st = '', time = Date.now()) {
-  console.log(JSON.stringify(body));
   return {
     url: `${JD_API_HOST}api?appid=siteppM&functionId=${functionId}&forcebot=&t=${time}`,
     body: `body=${encodeURIComponent(JSON.stringify(body))}&h5st=${encodeURIComponent(h5st)}`,
