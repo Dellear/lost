@@ -13,13 +13,15 @@ const JD_API_HOST = "https://m.jingxi.com/";
 let cookiesArr = [],
     cookie = '',
     token;
-$.appId = 10028;
+$.appId = 10032;
 let allMessage = '',
     message = '';
 let msg = [];
+let HBpool = '';
+let UA = '';
 
 const ddwPaperMoney = $.isNode() ? (process.env.DDWPAPERMONEY ? process.env.DDWPAPERMONEY : '100000') : '188000';
-const dwLvl =$.isNode() ? (process.env.DWLVL ? process.env.DWLVL : '11') : '12';
+let dwLvl = '';
 console.log(`当前抢兑：${ddwPaperMoney / 1000} 红包`)
 
 if ($.isNode()) {
@@ -48,6 +50,7 @@ if ($.isNode()) {
             cookie = cookiesArr[i];
             $.index = i + 1;
             $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+            UA = `jdpingou;iPhone;4.13.0;14.4.2;${randomString(40)};network/wifi;model/iPhone10,2;appBuild/100609;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/1;hasOCPay/0;supportBestPay/0;session/${Math.random * 98 + 1};pap/JA2019_3111789;brand/apple;supportJDSHWK/1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148`
             token = await getJxToken();
             if (i == 0) {
                 await ExchangeList();
@@ -131,7 +134,7 @@ function ExchangeList() {
         $.get(
             taskUrl(
                 `user/ExchangeState`,
-                `dwType=2&strPoolName=jxcfd2_exchange_hb_202112&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
+                `dwType=2&strPoolName=&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
             ),
             async (err, resp, data) => {
                 try {
@@ -147,9 +150,17 @@ function ExchangeList() {
                                     "等级": data['hongbao'][i]['dwLvl'],
                                     "库存": data['hongbao'][i]['dwStockNum']
                                 });
+
+                                if (data['hongbao'][i]['ddwPaperMoney'] == ddwPaperMoney) {
+                                    dwLvl = data['hongbao'][i]['dwLvl'];
+                                }
                             }
                             console.log(JSON.stringify(msg, null, 4));
                         }
+                        HBpool = data.hongbaopool;
+
+                        console.log(`dwLvl: ${dwLvl}`);
+                        console.log(`strPoolName: ${HBpool}`);
                     }
                 } catch (e) {
                     $.logErr(`======== 账号 ${$.index} ========\nerror:${e}\ndata: ${resp && resp.body}`)
@@ -166,7 +177,7 @@ function cashOut() {
         $.get(
             taskUrl(
                 `user/ExchangePrize`,
-                `dwType=3&ddwPaperMoney=${ddwPaperMoney}&strPoolName=jxcfd2_exchange_hb_202112&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
+                `dwType=3&ddwPaperMoney=${ddwPaperMoney}&strPoolName=${HBpool}&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`
             ),
             async (err, resp, data) => {
                 try {
@@ -194,11 +205,11 @@ function taskUrl(function_path, body) {
             Cookie: cookie,
             Accept: "*/*",
             Connection: "keep-alive",
-            Referer: "https://st.jingxi.com/fortune_island/index2.html?ptag=138631.26.55",
-            "Accept-Encoding": "gzip, deflate",
-            Host: "m.jingxi.com",
-            "User-Agent": `jdpingou;iPhone;3.15.2;14.2.1;ea00763447803eb0f32045dcba629c248ea53bb3;network/wifi;model/iPhone13,2;appBuild/100365;ADID/00000000-0000-0000-0000-000000000000;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/0;hasOCPay/0;supportBestPay/0;session/${Math.random * 98 + 1};pap/JA2015_311210;brand/apple;supportJDSHWK/1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148`,
-            "Accept-Language": "zh-cn",
+            Referer: "https://st.jingxi.com/fortune_island/index.html?ptag=138631.26.55",
+            Host: 'm.jingxi.com',
+            "Accept-Encoding": "gzip, deflate, br",
+            "User-Agent": UA,
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
         },
         timeout: 10000
     };
@@ -326,6 +337,14 @@ function decrypt(time, stk, type, url) {
     } else {
         return '20210318144213808;8277529360925161;10001;tk01w952a1b73a8nU0luMGtBanZTHCgj0KFVwDa4n5pJ95T/5bxO/m54p4MtgVEwKNev1u/BUjrpWAUMZPW0Kz2RWP8v;86054c036fe3bf0991bd9a9da1a8d44dd130c6508602215e50bb1e385326779d'
     }
+}
+
+function randomString(e) {
+    e = e || 32;
+    let t = "abcdef0123456789", a = t.length, n = "";
+    for (i = 0; i < e; i++)
+        n += t.charAt(Math.floor(Math.random() * a));
+    return n
 }
 
 /**
