@@ -119,11 +119,11 @@ async function siteppM_skuOnceApply() {
               await siteppM_appliedSuccAmount();
             } else {
               console.log(`保价失败：${data.responseMessage}`);
-              // 重试3次
-              if ($.tryCount < 4) {
-                await $.wait(2 * 1000);
-                siteppM_skuOnceApply();
+              // 重试2次
+              if ($.tryCount < 2) {
                 $.tryCount++;
+                await $.wait(3 * 1000);
+                await siteppM_skuOnceApply();
               } else {
                 message += `保价失败：${data.responseMessage}\n`;
               }
@@ -196,7 +196,7 @@ async function jstoken() {
   };
   const dom = new JSDOM(`<body>
   <script src="https:////static.360buyimg.com/siteppStatic/script/mescroll/map.js"></script>
-  <script src="https://storage.360buyimg.com/webcontainer/js_security_v3.js"></script>
+  <script src="https://storage.360buyimg.com/webcontainer/js_security_v3_0.1.0.js"></script>
   <script src="https://static.360buyimg.com/siteppStatic/script/utils.js"></script>
   <script src="https://js-nocaptcha.jd.com/statics/js/main.min.js"></script>
   </body>`, options);
